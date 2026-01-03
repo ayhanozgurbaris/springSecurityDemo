@@ -26,6 +26,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Test kolaylığı için kapattık
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll() // Herkese açık
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Sadece Admin
                         .anyRequest().authenticated() // Geri kalan her yer için giriş şart
