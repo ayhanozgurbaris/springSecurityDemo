@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         var userOptional = userRepository.findByUsername(username);
 
         if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException("User not found: " + username);
+            throw new UsernameNotFoundException(STR."User not found: \{username}");
         }
 
         User dbUser = userOptional.get();
