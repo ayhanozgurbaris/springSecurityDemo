@@ -1,5 +1,6 @@
 package com.security.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,7 @@ public class WelcomeController {
         return "Public Area: Herkes burayı görebilir (User & Admin).";
     }
 
-    // 2. Sadece ADMIN yetkisi olanın görebileceği sayfa
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public String adminPage() {
         return "Admin Area: Sadece Yöneticiler burayı görebilir!";
