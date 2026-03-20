@@ -4,6 +4,7 @@ import com.security.dto.AuthResponseDTO;
 import com.security.dto.LoginRequestDTO;
 import com.security.dto.RegisterRequestDTO;
 import com.security.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,12 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponseDTO login(@RequestBody LoginRequestDTO request) {
         return authenticationService.login(request);
+    }
+
+    @PostMapping("/refresh-token")
+    public AuthResponseDTO refreshToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        return authenticationService.refreshToken(authHeader);
     }
 
 

@@ -7,6 +7,7 @@ import com.security.entity.User;
 import com.security.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,18 +44,46 @@ public class AuthenticationService {
         // Kullanıcıyı bul ve token üret.
         User user = userRepository.findByUsername(request.username()).orElseThrow();
 
-        // Not: User sınıfımızın UserDetails implemente etmesi gerekiyor (Bir sonraki adımda düzelteceğiz)
-        // Şimdilik JwtService.generateToken metodunun UserDetails istediğini unutma.
-        // Hata almamak için User sınıfında küçük bir ayar yapacağız.
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .roles(user.getRole())
+                .build();
 
-        String token = jwtService.generateToken(
-                org.springframework.security.core.userdetails.User.builder()
-                        .username(user.getUsername())
-                        .password(user.getPassword())
-                        .roles(user.getRole())
-                        .build()
-        );
+        String accessToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return new AuthResponseDTO(token);
+        return new AuthResponseDTO(accessToken, refreshToken);
+    }
+
+    public AuthResponseDTO refreshToken(String authHeader) {
+        // 1. Gelen header boşsa veya Bearer ile başlamıyorsa hata ver
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Refresh token eksik veya hatalı!");
+        }
+
+        // 2. "Bearer " kısmını atıp token'ı al
+        String refreshToken = authHeader.substring(7);
+
+        // 3. Token içinden kullanıcı adını çıkar
+        String username = jwtService.extractUsername(refreshToken);
+
+        if (username != null) {
+            // Kullanıcıyı veritabanından bul
+            User user = userRepository.findByUsername(username).orElseThrow();
+
+            UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                    .username(user.getUsername())
+                    .password(user.getPassword())
+                    .roles(user.getRole())
+                    .build();
+
+            // SADECE YENİ BİR ACCESS TOKEN ÜRET (Refresh token'ı aynen geri dönüyoruz)
+            String newAccessToken = jwtService.generateToken(userDetails);
+
+            return new AuthResponseDTO(newAccessToken, refreshToken);
+        }
+
+        throw new RuntimeException("Geçersiz Refresh Token!");
     }
 }

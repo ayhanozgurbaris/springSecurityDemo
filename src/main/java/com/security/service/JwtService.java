@@ -19,10 +19,18 @@ public class JwtService {
 
     // 1. Token Üretme Metodu
     public String generateToken(UserDetails userDetails) {
+        return buildToken(userDetails, 1000 * 60 * 4);// 15 Dakika
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(userDetails, 1000L * 60 * 60 * 24 * 7); // 7 Gün
+    }
+
+    private String buildToken(UserDetails userDetails, long expirationTime) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername()) // Token kime ait?
                 .setIssuedAt(new Date(System.currentTimeMillis())) // Ne zaman üretildi?
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // Ne zaman ölecek? (24 dakika)
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256) // İmzala
                 .compact();
     }
