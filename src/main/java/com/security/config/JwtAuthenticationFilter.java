@@ -1,5 +1,6 @@
 package com.security.config;
 
+import com.security.repository.BlacklistedTokenRepository;
 import com.security.service.CustomUserDetailsService;
 import com.security.service.JwtService;
 import io.micrometer.common.lang.NonNull;
@@ -21,10 +22,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService, BlacklistedTokenRepository blacklistedTokenRepository) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.blacklistedTokenRepository = blacklistedTokenRepository;
     }
 
     //Uygulamaya gelen her bir HTTP isteği buradan geçer
@@ -51,6 +54,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 4. Token içinden kullanıcı adını çek (JwtService bu işi yapıyor)
         username = jwtService.extractUsername(jwt);
+
+        if (blacklistedTokenRepository.existsByToken(jwt)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 5. Kullanıcı adı varsa ve sistemde henüz doğrulanmamışsa
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
