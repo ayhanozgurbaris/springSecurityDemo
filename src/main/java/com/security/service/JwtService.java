@@ -19,7 +19,7 @@ public class JwtService {
 
     // 1. Token Üretme Metodu
     public String generateToken(UserDetails userDetails) {
-        return buildToken(userDetails, 1000 * 60 * 4);// 15 Dakika
+        return buildToken(userDetails, 1000 * 60 *15 );// 15 Dakika
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
