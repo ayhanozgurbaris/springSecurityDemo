@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. ÇARK: Veritabanımız
   db:
     image: postgres:15-alpine # İnternetten hazır PostgreSQL indir
     container_name: security_db
@@ -13,7 +12,13 @@ services:
     ports:
       - "5433:5432"
 
-  # 2. ÇARK: Spring Boot Uygulamamız
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: security_rabbitmq
+    ports:
+      - "5672:5672"   # Spring Boot'un arka planda mesajlaşmak için kullanacağı kapı
+      - "15672:15672" # Bizim tarayıcıdan yönetim paneline gireceğimiz kapı
+
   app:
     build: . # Bu klasördeki Dockerfile'ı bul ve inşa et
     container_name: security_app
