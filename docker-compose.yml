@@ -9,8 +9,9 @@ services:
       POSTGRES_USER: postgres       # Kendi DB kullanıcı adın
       POSTGRES_PASSWORD: 1234       # Kendi DB şifren
       POSTGRES_DB: security_db # Kendi DB adın
+    #5433 docker, 5432 windows
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   # 2. ÇARK: Spring Boot Uygulamamız
   app:
