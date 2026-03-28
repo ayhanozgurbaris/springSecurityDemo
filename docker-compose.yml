@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # 1. ÇARK: Veritabanımız
+  db:
+    image: postgres:15-alpine # İnternetten hazır PostgreSQL indir
+    container_name: security_db
+    environment:
+      POSTGRES_USER: postgres       # Kendi DB kullanıcı adın
+      POSTGRES_PASSWORD: 1234       # Kendi DB şifren
+      POSTGRES_DB: security_db # Kendi DB adın
+    ports:
+      - "5432:5432"
+
+  # 2. ÇARK: Spring Boot Uygulamamız
+  app:
+    build: . # Bu klasördeki Dockerfile'ı bul ve inşa et
+    container_name: security_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db # Önce veritabanı (db) ayağa kalksın, sonra uygulama çalışsın
+    environment:
+      # ÇOK KRİTİK: Artık veritabanı "localhost" değil, üstteki servisin adı olan "db" oldu!
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/security_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
