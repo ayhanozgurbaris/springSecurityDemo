@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll()
                         .requestMatchers("/api/v1/messages/**").permitAll()
+                        .requestMatchers("/api/v1/redis/**").permitAll()
                         //    .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Sadece Admin
                         .anyRequest().authenticated() // Geri kalan her yer için giriş şart
                 )
