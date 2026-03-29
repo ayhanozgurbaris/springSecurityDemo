@@ -25,9 +25,28 @@ services:
     ports:
       - "6379:6379" # Redis'in dış dünyayla iletişim kurduğu standart kapı
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: security_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # Az önce yazdığımız haritayı Prometheus'un içine kopyalıyoruz
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - app
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: security_grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
   app:
     build: . # Bu klasördeki Dockerfile'ı bul ve inşa et
-    container_name: security_app
+    container_name: security-app
     ports:
       - "8080:8080"
     depends_on:
