@@ -47,12 +47,14 @@ services:
   app:
     build: . # Bu klasördeki Dockerfile'ı bul ve inşa et
     container_name: security-app
-    ports:
-      - "8080:8080"
+    # ports:
+    #    - "8080:8080"
     depends_on:
       - db # Önce veritabanı (db) ayağa kalksın, sonra uygulama çalışsın
+      - rabbitmq
     environment:
       # ÇOK KRİTİK: Artık veritabanı "localhost" değil, üstteki servisin adı olan "db" oldu!
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/security_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
+      - RABBIT_HOST=security_rabbitmq
